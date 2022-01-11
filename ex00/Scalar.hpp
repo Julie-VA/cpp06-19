@@ -6,7 +6,7 @@
 /*   By: rvan-aud <rvan-aud@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/10 13:23:17 by rvan-aud          #+#    #+#             */
-/*   Updated: 2022/01/10 17:22:29 by rvan-aud         ###   ########.fr       */
+/*   Updated: 2022/01/11 16:05:39 by rvan-aud         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,20 +20,23 @@ class	Scalar
 	public:
 
 		Scalar(void);
-		Scalar(std::string param);
+		Scalar(std::string param, int ret);
 		Scalar(Scalar const &src);
 		~Scalar(void);
 
 		Scalar	&operator=(Scalar const &rhs);
 
 		// Getters
-		char	getChar(void) const;
-		int		getInt(void) const;
-		float	getFloat(void) const;
-		double	getDouble(void) const;
+		std::string	getType(void) const;
+		char		getChar(void) const;
+		int			getInt(void) const;
+		float		getFloat(void) const;
+		double		getDouble(void) const;
+		bool		getSpecial(void) const;
+		bool		getDeci(void) const;
 
-		void	printChar(void) const;
-		void	printInt(void) const;
+		std::string const	printChar(void) const;
+		std::string const	&printInt(void) const;
 		void	printFloat(void) const;
 		void	printDouble(void) const;
 
@@ -54,6 +57,8 @@ class	Scalar
 		int			_int;
 		float		_float;
 		double		_double;
+		bool		_special;
+		bool		_deci;
 };
 
 std::ostream	&operator<<(std::ostream &o, Scalar const &rhs);

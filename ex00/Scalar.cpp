@@ -6,18 +6,48 @@
 /*   By: rvan-aud <rvan-aud@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/10 13:23:22 by rvan-aud          #+#    #+#             */
-/*   Updated: 2022/01/10 17:09:03 by rvan-aud         ###   ########.fr       */
+/*   Updated: 2022/01/11 16:26:08 by rvan-aud         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Scalar.hpp"
 
-Scalar::Scalar(void) : _type("Default"), _char('0'), _int(0), _float(0.0f), _double(0.0)
+Scalar::Scalar(void) : _type("Default"), _char('0'), _int(0), _float(0.0f), _double(0.0), _special(0)
 {
 }
 
-Scalar::Scalar(std::string str)
+Scalar::Scalar(std::string str, int ret) : _char('0'), _int(0), _float(0.0f), _double(0.0), _special(0)
 {
+	if (ret > 0 && ret < 8)
+	{
+		this->_special = 1;
+		switch (ret)
+		{
+			case (2):
+				this->_type = "-inf";
+				break;
+			case (3):
+				this->_type = "+inf";
+				break;
+			case (4):
+				this->_type = "nan";
+				break;
+			case (5):
+				this->_type = "-inf";
+				break;
+			case (6):
+				this->_type = "+inf";
+				break;
+			case (7):
+				this->_type = "nan";
+				break;
+		}
+		return ;
+	}
+
+	if (ret == 8)
+		this->_deci = 1;
+
 	int		i = std::atoi(str.c_str());
 	double	d = std::atof(str.c_str());
 
@@ -110,7 +140,13 @@ Scalar	&Scalar::operator=(Scalar const &rhs)
 	this->_int = rhs._int;
 	this->_float = rhs._float;
 	this->_double = rhs._double;
+	this->_special = rhs._special;
 	return (*this);
+}
+
+std::string	Scalar::getType(void) const
+{
+	return (this->_type);
 }
 
 char	Scalar::getChar(void) const
@@ -133,11 +169,60 @@ double	Scalar::getDouble(void) const
 	return (this->_double);
 }
 
+bool	Scalar::getSpecial(void) const
+{
+	return (this->_special);
+}
+
+bool	Scalar::getDeci(void) const
+{
+	return (this->_deci);
+}
+
 std::ostream	&operator<<(std::ostream &o, Scalar const &rhs)
 {
-	o << "Char = '" << rhs.getChar() << "'" << std::endl
-		<< "Int = " << rhs.getInt() << std::endl
-		<< "Float = " << rhs.getFloat() << std::endl
-		<< "Double = " << rhs.getDouble() << std::endl;
+	o << "Char = ";
+	if (rhs.getSpecial() || rhs.getDouble() < 0 || rhs.getDouble() > 127)
+		o << "impossible";
+	else if (rhs.getDouble() < 32 || rhs.getDouble() == 127)
+		o << "Non displayable";
+	else
+		o << "'" << rhs.getChar() << "'";
+	o << std::endl;
+
+	o << "Int = ";
+	if (rhs.getSpecial())
+		o << "impossible";
+	else if (rhs.getType() == "float" && (rhs.getFloat() > std::numeric_limits<int>::max() || rhs.getFloat() < std::numeric_limits<int>::min()))
+		o << "impossible";
+	else if (rhs.getType() == "double" && (rhs.getDouble() > std::numeric_limits<int>::max() || rhs.getDouble() < std::numeric_limits<int>::min()))
+		o << "impossible";
+	else
+		o << rhs.getInt();
+	o << std::endl;
+
+	o << "Float = ";
+	if (rhs.getSpecial())
+		o << rhs.getType() << "f";
+	else
+	{
+		if (!rhs.getDeci())
+			o << rhs.getFloat() << ".0f";
+		else
+			o << std::fixed << std::setprecision(3) << rhs.getFloat() << "f";
+	}
+	o << std::endl;
+
+	o << "Double = ";
+	if (rhs.getSpecial())
+		o << rhs.getType();
+	else
+	{
+		if (!rhs.getDeci())
+			o << rhs.getDouble() << ".0";
+		else
+			o << std::fixed << std::setprecision(3) << rhs.getDouble();
+	}
+	o << std::endl;
 	return (o);
 }
